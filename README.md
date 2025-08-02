@@ -8,14 +8,14 @@ It comes with a RTSP client also
 
 # HOW TO COMPILE
 
-´´´bash
+```bash
 
 mkdir build
 cd build
 cmake ..
 make -j$(nproc)
 
-´´´
+```
 
 # HOW TO RUN
 create or modify the config_xx.txt files, there you can modify the mount point, the codec (H.264 or H.265) and the port
