@@ -1,0 +1,3 @@
+src_mount=/live
+src_port=8554
+src_codec=265
