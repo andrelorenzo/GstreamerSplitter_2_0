@@ -4,7 +4,7 @@ It comes with a RTSP client also
 
 # DEPENDENCIES
 * C11
-* Gstreamer 1.0
+* Gstreamer 1.0 = sudo apt-get install libgstrtspserver-1.0-dev gstreamer1.0-rtsp
 
 # HOW TO COMPILE
 
