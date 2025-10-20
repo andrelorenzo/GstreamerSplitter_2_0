@@ -1,2 +1,2 @@
-src_url=rtsp://127.0.0.1:8554/live
-codec=265
+src_url=rtsp://admin:admin123@192.168.0.10:554/live0.264
+codec=264
