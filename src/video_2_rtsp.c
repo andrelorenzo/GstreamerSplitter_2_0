@@ -13,6 +13,7 @@ typedef struct {
     int  framerate;
     int  dev_id;
     int  port;        // número, lo convertimos a string para set_service
+    char format[32];
 } Config;
 
 static void set_defaults(Config *c) {
@@ -23,6 +24,7 @@ static void set_defaults(Config *c) {
     c->width_px  = 640;
     snprintf(c->mount, sizeof c->mount, "live0");
     c->port      = 8554;
+    snprintf(c->format, sizeof c->format, "I420") // I420 / YUY2 / NV12
 }
 
 static void trim_newline(char *s) {
@@ -69,6 +71,8 @@ gboolean parse_config(const char *filename, Config *config) {
             config->dev_id = atoi(value);
         } else if (strcmp(key, "PORT") == 0) {
             config->port = atoi(value);
+        } else if (strcmp(key, "FORMAT") == 0) {
+            config->format = atoi(value);
         } else {
             printf("Parámetro no reconocido: %s (se ignora)\n", key);
         }
@@ -115,10 +119,10 @@ int main(int argc, char *argv[]) {
     snprintf(
         pipe, sizeof pipe,
         "( v4l2src device=/dev/video%d ! "
-        "videoconvert ! video/x-raw,format=I420,width=%d,height=%d,framerate=%d/1 ! "
+        "videoconvert ! video/x-raw,format=%s,width=%d,height=%d,framerate=%d/1 ! "
         "%s tune=zerolatency speed-preset=ultrafast key-int-max=60 ! "
         "%s config-interval=1 ! %s name=pay0 pt=96 )",
-        config.dev_id,
+        config.dev_id,config.format,
         config.width_px, config.height_px, config.framerate,
         enc, parse, pay
     );
@@ -145,8 +149,8 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
-    printf("Obteniendo vídeo de: /dev/video%d %dx%d @ %d fps\n",
-           config.dev_id, config.width_px, config.height_px, config.framerate);
+    printf("Obteniendo vídeo de: /dev/video%d %dx%d @ %d fps (format: %s)\n",
+           config.dev_id, config.width_px, config.height_px, config.framerate, config.format);
     printf("RTSP listo en: rtsp://127.0.0.1:%d%s usando %s\n",
            config.port, mount_with_slash, is265 ? "H.265" : "H.264");
     printf("Pipeline:\n%s\n", pipe);
