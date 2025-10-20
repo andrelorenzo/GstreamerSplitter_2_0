@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 project(rtsp_server C)
-set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD 17)
 
 # Buscar los paquetes necesarios
 find_package(PkgConfig REQUIRED)
@@ -35,6 +35,10 @@ target_link_libraries(rtsp_server
 )
 # Añadir el ejecutable receiver
 add_executable(rtsp_viewer src/receiver.c)
+target_link_libraries(rtsp_viewer ${GST_LIBRARIES} ${GST_RTSP_LIBRARIES} ${GST_VIDEO_LIBRARIES})
+
+add_executable(usb_to_rtsp src/video_2_rtsp.c)
+target_link_libraries(usb_to_rtsp ${GST_LIBRARIES} ${GST_RTSP_LIBRARIES} ${GST_VIDEO_LIBRARIES})
+
 target_include_directories(rtsp_viewer PRIVATE ${GST_INCLUDE_DIRS})
 target_compile_options(rtsp_viewer PRIVATE ${GST_CFLAGS_OTHER})
-target_link_libraries(rtsp_viewer ${GST_LIBRARIES} ${GST_RTSP_LIBRARIES} ${GST_VIDEO_LIBRARIES})

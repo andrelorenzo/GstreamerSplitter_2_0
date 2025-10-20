@@ -149,7 +149,7 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
-        InterfaceInfo interfaces[MAX_INTERFACES];
+    InterfaceInfo interfaces[MAX_INTERFACES];
     int num_interfaces = list_interfaces(interfaces, MAX_INTERFACES);
 
     if (num_interfaces == 0) {
