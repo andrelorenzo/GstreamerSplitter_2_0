@@ -1,0 +1,24 @@
+[Unit]
+Description=Captura USB cam (/dev/video0) a MKV con nombre de cámara y hora
+After=dev-video0.device
+Wants=dev-video0.device
+
+[Service]
+UMask=0002
+Type=simple
+
+ExecStartPre=/usr/bin/mkdir -p /var/recordings
+ExecStart=/usr/local/bin/cam_capture.sh
+Restart=on-failure
+RestartSec=5s
+
+
+Environment=DEV=/dev/video0
+Environment=OUTDIR=/var/recordings
+Environment=INPUT_FORMAT=yuyv422
+Environment="FFMPEG_OPTS=-c:v libx264 -pix_fmt yuv422p -preset veryfast -crf 18"
+
+
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,11 @@
+[Unit]
+Description=Preparar camera_name para Motion desde V4L2
+Wants=dev-video0.device
+After=dev-video0.device
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/motion_set_camera_name.sh /dev/video0 /etc/motion/camera1-dist.conf
+
+[Install]
+WantedBy=multi-user.target
