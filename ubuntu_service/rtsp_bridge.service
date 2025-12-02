@@ -1,0 +1,29 @@
+[Unit]
+Description=USB camera to RTSP (H.26x) server
+Wants=network-online.target
+After=network-online.target
+# No arranques si faltan binario o config
+ConditionPathExists=/home/arquimea/programms/GstreamerSplitter_2_0/build/usb_to_rtsp
+ConditionPathExists=/home/arquimea/programms/GstreamerSplitter_2_0/params/video_to_rtsp.txt
+
+[Service]
+Type=simple
+User=arquimea
+Group=video
+WorkingDirectory=/home/arquimea/programms/GstreamerSplitter_2_0
+# Espera a que aparezca la cámara (opcional)
+ExecStartPre=/bin/bash -c 'for i in {1..10}; do [ -e /dev/video0 ] && exit 0; sleep 1; done; echo "/dev/video0 no disponible"; exit 1'
+ExecStart=/home/arquimea/programms/GstreamerSplitter_2_0/build/usb_to_rtsp /home/arquimea/programms/GstreamerSplitter_2_0/params/video_to_rtsp.txt
+Restart=always
+RestartSec=2
+# Evita bucles rápidos si crashea en bucle
+StartLimitIntervalSec=30
+StartLimitBurst=10
+# Logs al journal
+StandardOutput=journal
+StandardError=journal
+# (Opcional) fuerza solo RTSP/TCP desde el servidor si lo has puesto en el código
+# Environment=GST_DEBUG=0
+
+[Install]
+WantedBy=multi-user.target
