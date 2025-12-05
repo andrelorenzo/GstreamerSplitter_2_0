@@ -21,8 +21,7 @@ cd "$SCRIPT_DIR" || exit 1
 # 1) Lanzar IMX296 (con tuning) en background
 ########################################
 echo "Lanzando RTSP IMX296..."
-LIBCAMERA_RPI_TUNING_FILE="$TUNING_FILE" \
-  ./../build/usb_to_rtsp ../params/video_to_rtsp_imx296.txt "$@" &
+./../build/usb_to_rtsp ../params/video_to_rtsp_imx296.txt "$@" &
 PID_IMX=$!
 
 ########################################
