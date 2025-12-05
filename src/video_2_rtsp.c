@@ -143,7 +143,7 @@ int main(int argc, char *argv[]) {
         pipe, sizeof(pipe),
         "( libcamerasrc ! "
         "video/x-raw,format=NV12, width=%d,height=%d,framerate=%d/1 ! "
-        "videoconvert ! video/x-raw,format=I420 ! "
+        "videoconvert ! videobalance saturation=0.9 hue=-0.03 ! video/x-raw,format=I420 ! "
         "%s tune=zerolatency key-int-max=20 ! "
         "%s config-interval=1 ! %s name=pay0 pt=96 )",
         config.width_px, config.height_px, config.framerate,
