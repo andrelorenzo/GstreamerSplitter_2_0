@@ -141,10 +141,12 @@ int main(int argc, char *argv[]) {
     }else if (strcmp(config.camera, "IMX296") == 0) {
    snprintf(
         pipe, sizeof(pipe),
-        "( libcamerasrc ! "
+        "( libcamerasrc exposure-value=-10.0 ! "
         "video/x-raw,format=NV12, width=%d,height=%d,framerate=%d/1 ! "
-        "videoconvert ! video/x-raw,format=I420 ! "
-        "%s tune=zerolatency key-int-max=20 ! "
+	"videoconvert ! "
+    	"videobalance brightness=-0.20 contrast=1.00 saturation=1.00 hue=0.00 ! "
+	"video/x-raw,format=I420 ! "
+	"%s tune=zerolatency key-int-max=20 ! "
         "%s config-interval=1 ! %s name=pay0 pt=96 )",
         config.width_px, config.height_px, config.framerate,
         enc, parse, pay
