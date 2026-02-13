@@ -3,7 +3,7 @@
 # Script: launch_double_rtsp.sh
 # Uso: ./launch_double_rtsp.sh
 
-TUNING_FILE="/usr/share/libcamera/ipa/rpi/pisp/imx296_mono.json"
+TUNING_FILE="/usr/share/libcamera/ipa/rpi/pisp/imx296.json"
 
 # Comprobar que existe el fichero de tuning
 if [ ! -f "$TUNING_FILE" ]; then
