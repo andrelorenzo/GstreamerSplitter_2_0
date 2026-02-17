@@ -1,2 +1,0 @@
-src_url=rtsp://127.0.0.1:8554/live0
-codec=265

@@ -1,0 +1,21 @@
+[Unit]
+Description=Dual RTSP camera server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=@SERVICE_USER@
+@SUPPLEMENTARY_GROUPS@
+WorkingDirectory=@REPO_DIR@
+ExecStart=@REPO_DIR@/scripts/launch_double_rtsp.sh
+Restart=on-failure
+RestartSec=3
+KillMode=control-group
+TimeoutStopSec=10
+StandardOutput=journal
+StandardError=journal
+Environment=GST_DEBUG=2
+
+[Install]
+WantedBy=multi-user.target

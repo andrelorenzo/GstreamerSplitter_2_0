@@ -1,39 +1,67 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# Script: launch_double_rtsp.sh
-# Uso: ./launch_double_rtsp.sh
+set -uo pipefail
 
-TUNING_FILE="/usr/share/libcamera/ipa/rpi/pisp/imx296_mono.json"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+BIN="$SCRIPT_DIR/../build/usb_to_rtsp"
+CFG_IMX="$SCRIPT_DIR/../params/config_imx296.txt"
+CFG_BERTIN="$SCRIPT_DIR/../params/config_bertin.txt"
 
-# Comprobar que existe el fichero de tuning
-if [ ! -f "$TUNING_FILE" ]; then
-    echo "ERROR: No existe el fichero de tuning: $TUNING_FILE" >&2
+PID_IMX=""
+PID_BERTIN=""
+
+stop_children() {
+    trap - INT TERM EXIT
+
+    if [ -n "${PID_IMX:-}" ] && kill -0 "$PID_IMX" 2>/dev/null; then
+        kill "$PID_IMX" 2>/dev/null || true
+    fi
+
+    if [ -n "${PID_BERTIN:-}" ] && kill -0 "$PID_BERTIN" 2>/dev/null; then
+        kill "$PID_BERTIN" 2>/dev/null || true
+    fi
+
+    wait "$PID_IMX" "$PID_BERTIN" 2>/dev/null || true
+}
+
+on_signal() {
+    stop_children
+    exit 143
+}
+
+trap on_signal INT TERM
+trap stop_children EXIT
+
+if [ ! -x "$BIN" ]; then
+    echo "ERROR: no existe o no es ejecutable: $BIN" >&2
     exit 1
 fi
 
-echo "Usando tuning file para IMX296: $TUNING_FILE"
+if [ ! -f "$CFG_IMX" ]; then
+    echo "ERROR: no existe: $CFG_IMX" >&2
+    exit 1
+fi
 
-# Ir al directorio donde está este script
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-cd "$SCRIPT_DIR" || exit 1
+if [ ! -f "$CFG_BERTIN" ]; then
+    echo "ERROR: no existe: $CFG_BERTIN" >&2
+    exit 1
+fi
 
-########################################
-# 1) Lanzar IMX296 (con tuning) en background
-########################################
 echo "Lanzando RTSP IMX296..."
-./../build/usb_to_rtsp ../params/video_to_rtsp_imx296.txt "$@" &
+"$BIN" "$CFG_IMX" "$@" &
 PID_IMX=$!
 
-########################################
-# 2) Lanzar BERTIN (sin tuning especial) en background
-########################################
 echo "Lanzando RTSP BERTIN..."
-./../build/usb_to_rtsp ../params/video_to_rtsp_bertin.txt "$@" &
+"$BIN" "$CFG_BERTIN" "$@" &
 PID_BERTIN=$!
 
 echo "Procesos lanzados:"
-echo "  IMX296  PID = $PID_IMX"
-echo "  BERTIN  PID = $PID_BERTIN"
+echo "  IMX296 PID = $PID_IMX"
+echo "  BERTIN PID = $PID_BERTIN"
 
-# Esperar a que terminen (si matas el script, se caen los dos)
-wait
+wait -n "$PID_IMX" "$PID_BERTIN"
+STATUS=$?
+
+echo "Uno de los procesos RTSP ha terminado. Parando el otro..."
+stop_children
+exit "$STATUS"

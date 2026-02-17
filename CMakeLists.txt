@@ -33,12 +33,14 @@ target_link_libraries(rtsp_server
     ${GST_RTSP_CORE_LIBRARIES}
     ${GST_VIDEO_LIBRARIES}
 )
+
 # Añadir el ejecutable receiver
 add_executable(rtsp_viewer src/receiver.c)
 target_link_libraries(rtsp_viewer ${GST_LIBRARIES} ${GST_RTSP_LIBRARIES} ${GST_VIDEO_LIBRARIES})
-
-add_executable(usb_to_rtsp src/video_2_rtsp.c)
-target_link_libraries(usb_to_rtsp ${GST_LIBRARIES} ${GST_RTSP_LIBRARIES} ${GST_VIDEO_LIBRARIES})
-
 target_include_directories(rtsp_viewer PRIVATE ${GST_INCLUDE_DIRS})
 target_compile_options(rtsp_viewer PRIVATE ${GST_CFLAGS_OTHER})
+
+# Añadir el ejecutble de CAM to RTSP
+add_executable(cam_to_rtsp src/cam_to_rtsp.c)
+target_link_libraries(cam_to_rtsp ${GST_LIBRARIES} ${GST_RTSP_LIBRARIES} ${GST_VIDEO_LIBRARIES})
+
