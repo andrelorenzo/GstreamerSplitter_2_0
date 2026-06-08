@@ -4,7 +4,13 @@ It comes with a RTSP client also
 
 # DEPENDENCIES
 * C11
-* Gstreamer 1.0 = sudo apt-get install libgstrtspserver-1.0-dev gstreamer1.0-rtsp
+* Gstreamer 1.0
+* Cmake
+
+sudo apt update && sudo apt upgrade -y
+sudo apt install git -y
+sudo apt install cmake -y
+sudo apt install -y build-essential cmake pkg-config libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libgstrtspserver-1.0-dev gstreamer1.0-rtsp
 
 # 1. HOW TO COMPILE
 
