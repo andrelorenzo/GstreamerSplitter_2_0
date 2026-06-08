@@ -3,7 +3,7 @@
 set -uo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BIN="$SCRIPT_DIR/../build/usb_to_rtsp"
+BIN="$SCRIPT_DIR/../build/cam_to_rtsp"
 CFG_IMX="$SCRIPT_DIR/../params/config_imx296.txt"
 CFG_BERTIN="$SCRIPT_DIR/../params/config_bertin.txt"
 
