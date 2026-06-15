@@ -12,6 +12,41 @@ sudo apt install git -y
 sudo apt install cmake -y
 sudo apt install -y build-essential cmake pkg-config libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libgstrtspserver-1.0-dev gstreamer1.0-rtsp
 
+# 0. INSTALL DRIVER (RPI4/5)
+https://github.com/VC-MIPI-modules/vc_mipi_raspi
+https://github.com/VC-MIPI-modules/vc_mipi_raspi/blob/main/docs/libcamera.md
+## RASPBERRY PI 4
+```bash
+mkdir vccam
+cd vccam
+https://github.com/VC-MIPI-modules/vc_mipi_raspi/releases/download/v0.6.10/vc-mipi-driver-bcm2711_0.6.10_arm64.deb
+sudo apt install ./vc-mipi-driver-bcm2711_0.6.10_arm64.deb
+sudo nano /boot/firmware/config_vc-mipi-driver-bcm2712.txt
+change to 1 lane, sony cameras, libcameraon
+ctrl+x
+y
+wget https://raw.githubusercontent.com/VC-MIPI-modules/vc_mipi_raspi/main/Makefile
+make all-rpi4
+```
+## RASPBERRY PI 5
+```bash
+https://github.com/VC-MIPI-modules/vc_mipi_raspi/releases/download/v0.6.10/vc-mipi-driver-bcm2712_0.6.10_arm64.deb
+sudo apt install ./vc-mipi-driver-bcm2712_0.6.10_arm64.deb
+sudo nano /boot/firmware/config_vc-mipi-driver-bcm2712.txt
+change to 1 lane, sony cameras, libcameraon
+ctrl+x
+y
+wget https://raw.githubusercontent.com/VC-MIPI-modules/vc_mipi_raspi/main/Makefile
+make all
+```
+
+## CHECK INSTALLAION
+```bash
+sudo reboot -n
+sudo dmesg # check for camera detection
+vc-config # check for camera detection
+```
+
 # 1. HOW TO COMPILE
 
 ```bash
