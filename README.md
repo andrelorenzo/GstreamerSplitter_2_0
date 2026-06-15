@@ -14,6 +14,7 @@ sudo apt install -y build-essential cmake pkg-config libgstreamer1.0-dev libgstr
 
 # 0. INSTALL DRIVER (RPI4/5)
 https://github.com/VC-MIPI-modules/vc_mipi_raspi
+
 https://github.com/VC-MIPI-modules/vc_mipi_raspi/blob/main/docs/libcamera.md
 ## RASPBERRY PI 4
 ```bash
