@@ -1,0 +1,27 @@
+# ============================================================
+# Vision Components IMX296C
+# RAW10 -> CFE -> RGGB16 -> GStreamer
+# ============================================================
+
+CAM=imx296_vc
+CAM_PORT=mipi1
+
+DEVICE=/dev/video8
+
+WIDTH=1440
+HEIGHT=1080
+FPS=60
+
+BAYER_FORMAT=rggb16le
+IO_MODE=mmap
+
+CODEC=h264
+KBPS=5000
+KEYINT=60
+SPEED_PRESET=ultrafast
+
+PORT=8001
+MOUNT=/imx296
+MTU=1200
+
+QUEUE_BUFFERS=1

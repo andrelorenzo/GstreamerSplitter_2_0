@@ -5,12 +5,12 @@ It comes with a RTSP client also
 # DEPENDENCIES
 * C11
 * Gstreamer 1.0
-* Cmake
+* Cmake 3.21
 
+``` bash
 sudo apt update && sudo apt upgrade -y
-sudo apt install git -y
-sudo apt install cmake -y
-sudo apt install -y build-essential cmake pkg-config libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libgstrtspserver-1.0-dev gstreamer1.0-rtsp
+sudo apt install -y build-essential git cmake pkg-config libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libgstrtspserver-1.0-dev gstreamer1.0-rtsp
+```
 
 # 0. INSTALL DRIVER (RPI4/5)
 https://github.com/VC-MIPI-modules/vc_mipi_raspi
@@ -20,7 +20,7 @@ https://github.com/VC-MIPI-modules/vc_mipi_raspi/blob/main/docs/libcamera.md
 ```bash
 mkdir vccam
 cd vccam
-https://github.com/VC-MIPI-modules/vc_mipi_raspi/releases/download/v0.6.10/vc-mipi-driver-bcm2711_0.6.10_arm64.deb
+wget https://github.com/VC-MIPI-modules/vc_mipi_raspi/releases/download/v0.6.10/vc-mipi-driver-bcm2711_0.6.10_arm64.deb
 sudo apt install ./vc-mipi-driver-bcm2711_0.6.10_arm64.deb
 sudo nano /boot/firmware/config_vc-mipi-driver-bcm2712.txt
 change to 1 lane, sony cameras, libcameraon
@@ -31,7 +31,7 @@ make all-rpi4
 ```
 ## RASPBERRY PI 5
 ```bash
-https://github.com/VC-MIPI-modules/vc_mipi_raspi/releases/download/v0.6.10/vc-mipi-driver-bcm2712_0.6.10_arm64.deb
+wget https://github.com/VC-MIPI-modules/vc_mipi_raspi/releases/download/v0.6.10/vc-mipi-driver-bcm2712_0.6.10_arm64.deb
 sudo apt install ./vc-mipi-driver-bcm2712_0.6.10_arm64.deb
 sudo nano /boot/firmware/config_vc-mipi-driver-bcm2712.txt
 change to 1 lane, sony cameras, libcameraon

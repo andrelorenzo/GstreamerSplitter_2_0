@@ -1,0 +1,28 @@
+# ============================================================
+# AR0234 - CM5
+# 4-lane CSI-2 / RAW8
+# ============================================================
+
+CAM=ar0234
+CAM_PORT=mipi0
+
+# Si solo existe una cámara libcamera, dejar vacío.
+# CAMERA_NAME=
+
+WIDTH=1920
+HEIGHT=1200
+FPS=120
+
+# Encoder
+CODEC=h264
+KBPS=8000
+KEYINT=120
+SPEED_PRESET=ultrafast
+
+# RTSP
+PORT=8000
+MOUNT=/ar0234
+MTU=1200
+
+# Low latency
+QUEUE_BUFFERS=1
