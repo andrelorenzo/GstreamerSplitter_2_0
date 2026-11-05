@@ -1,0 +1,136 @@
+.PHONY: all installDeps installV4l2Utils installLibPisp installLibcamera installRPICamApps installLibcamera-rpi4 installGstreamer installRPICamAppsHailo
+
+# Bookworm (Debian 12) ships FFmpeg 5.x which is too old for the libav encoder (requires 6.0+)
+DEBIAN_CODENAME := $(shell . /etc/os-release 2>/dev/null && echo $$VERSION_CODENAME)
+ENABLE_LIBAV := $(if $(filter bookworm,$(DEBIAN_CODENAME)),disabled,enabled)
+
+# Ninja defaults to nproc+2 parallel compile jobs, which OOMs C++-heavy builds
+# (libcamera, rpicam-apps) on low-RAM boards. Budget ~1.5GB/job, capped at nproc.
+# Override on the command line if needed, e.g. `make installRPICamApps MESON_JOBS=1`.
+MESON_JOBS ?= $(shell nproc=$$(nproc); mem_jobs=$$(awk '/MemTotal/{v=int($$2/1500000); print (v<1?1:v)}' /proc/meminfo); [ $$mem_jobs -lt $$nproc ] && echo $$mem_jobs || echo $$nproc)
+
+all: installDeps installV4l2Utils installLibPisp installGstreamer installLibcamera  installRPICamApps
+all-rpi4: installDeps installV4l2Utils installGstreamer installLibcamera-rpi4  installRPICamApps
+installDeps:
+	@echo "Installing dependencies..."
+	## 1.Install dependencies
+	sudo apt-get update
+	sudo apt-get -y install meson
+	sudo apt install -y python3-pip git python3-jinja2
+	sudo apt install -y libboost-dev libsdl2-dev libc6 libevent-dev
+	sudo apt install -y libgnutls28-dev openssl libtiff-dev pybind11-dev
+	sudo apt install -y libtiff-dev qt6-base-dev qt6-tools-dev-tools
+	sudo apt install -y meson cmake
+	sudo apt install -y python3-yaml python3-ply
+	sudo apt install -y libglib2.0-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
+	sudo apt install -y cmake libboost-program-options-dev libdrm-dev libexif-dev libpng-dev libepoxy-dev
+	sudo apt install -y libavcodec-dev libavformat-dev libswscale-dev libavutil-dev libavdevice-dev
+	sudo apt install -y libopencv-dev
+
+installV4l2Utils:
+ifeq ($(DEBIAN_CODENAME),bookworm)
+	@echo "Bookworm detected: installing v4l-utils from Debian Trixie repository..."
+	sudo rm -f /etc/apt/sources.list.d/raspbian-trixie.list
+	echo "deb [arch=$(shell dpkg --print-architecture)] http://deb.debian.org/debian trixie main" \
+	  | sudo tee /etc/apt/sources.list.d/debian-trixie.list
+	printf 'Package: *\nPin: release n=trixie\nPin-Priority: 100\n' \
+	  | sudo tee /etc/apt/preferences.d/trixie-pin
+	sudo apt-get update
+	echo 'libc6 libraries/restart-without-asking boolean true' | sudo debconf-set-selections
+	sudo apt-get install -y -t trixie v4l-utils
+else
+	@echo "Installing v4l-utils..."
+	sudo apt-get install -y v4l-utils
+endif
+
+installLibPisp:
+	@if dpkg-query -W libpisp-dev 2>/dev/null | grep -q libpisp-dev; then \
+		echo "libpisp-dev is available in package manager, installing..."; \
+		sudo apt install -y libpisp-dev; \
+	else \
+		echo "libpisp-dev not available, building from source..."; \
+		cd /tmp && rm -rf /tmp/libpisp && \
+		git clone https://github.com/raspberrypi/libpisp.git && \
+		cd libpisp && \
+		meson setup build --buildtype=release --prefix=/usr && \
+		meson compile -C build -j$(MESON_JOBS) && \
+		sudo ninja -C build install; \
+	fi
+	sudo rm -rf /usr/local/include/libpisp \
+	            /usr/local/lib/aarch64-linux-gnu/libpisp.so* \
+	            /usr/local/lib/aarch64-linux-gnu/libpisp.a \
+	            /usr/local/lib/aarch64-linux-gnu/pkgconfig/libpisp.pc \
+	            /usr/local/share/libpisp
+	sudo ldconfig
+
+installLibcamera:
+	sudo apt-get remove -y libcamera* || true
+	cd /tmp && rm -rf /tmp/libcamera && \
+	git clone --branch update-to-v0.7.0 https://github.com/VC-MIPI-modules/libcamera || true && \
+	cd libcamera && \
+	meson setup build --buildtype=release --prefix=/usr \
+	  -Dpipelines=rpi/vc4,rpi/pisp \
+	  -Dipas=rpi/vc4,rpi/pisp \
+	  -Dv4l2=enabled \
+	  -Dgstreamer=enabled \
+	  -Dtest=false \
+	  -Dlc-compliance=disabled \
+	  -Dcam=enabled \
+	  -Dqcam=disabled \
+	  -Ddocumentation=disabled \
+	  -Dpycamera=enabled && \
+	meson compile -C build -j$(MESON_JOBS) && \
+	sudo ninja -C build install
+installLibcamera-rpi4:
+	sudo apt-get remove -y libcamera* || true
+	cd /tmp && rm -rf /tmp/libcamera && \
+	git clone --branch update-to-v0.7.0 https://github.com/VC-MIPI-modules/libcamera || true && \
+	cd libcamera && \
+	meson setup build --buildtype=release --prefix=/usr \
+	  -Dpipelines=rpi/vc4 \
+	  -Dipas=rpi/vc4 \
+	  -Dv4l2=enabled \
+	  -Dgstreamer=enabled \
+	  -Dtest=false \
+	  -Dlc-compliance=disabled \
+	  -Dcam=enabled \
+	  -Dqcam=disabled \
+	  -Ddocumentation=disabled \
+	  -Dpycamera=enabled && \
+	meson compile -C build -j$(MESON_JOBS) && \
+	sudo ninja -C build install
+installGstreamer:
+	sudo apt install -y gstreamer1.0-tools gstreamer1.0-plugins-base libgstreamer-plugins-base1.0-dev \
+	gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly \
+	gstreamer1.0-libav
+installRPICamApps:
+	cd /tmp && rm -rf /tmp/rpicam-apps && \
+	git clone https://github.com/raspberrypi/rpicam-apps.git && \
+	cd rpicam-apps && \
+	git fetch --tags && \
+	git checkout v1.11.1 && \
+	meson setup build --buildtype=release -Denable_hailo=disabled -Denable_opencv=enabled -Denable_egl=enabled -Denable_libav=$(ENABLE_LIBAV) && \
+	meson compile -C build -j$(MESON_JOBS) && \
+	sudo meson install -C build
+	@printf "%s\n" \
+	 "/usr/local/lib/aarch64-linux-gnu" \
+	 "/usr/lib/aarch64-linux-gnu" \
+	| sudo tee /etc/ld.so.conf.d/rpicam.conf && \
+	sudo ldconfig
+
+installRPICamAppsHailo:
+	sudo apt install hailo-tappas-core=3.30.0-1 hailo-dkms=4.19.0-1 hailort=4.19.0-3 libepoxy-dev
+	cd /tmp && rm -rf /tmp/rpicam-apps && \
+	git clone https://github.com/raspberrypi/rpicam-apps.git && \
+	cd rpicam-apps && \
+	git fetch --tags && \
+	git checkout v1.5.2 && \
+	meson setup build  --buildtype=release -Denable_hailo=enabled -Denable_opencv=enabled -Ddownload_hailo_models=true -Denable_egl=enabled -Denable_imx500=false && \
+	meson compile -C build -j$(MESON_JOBS) && \
+	sudo meson install -C build
+	@printf "%s\n" \
+	 "/usr/local/lib/aarch64-linux-gnu" \
+	 "/usr/lib/aarch64-linux-gnu" \
+	| sudo tee /etc/ld.so.conf.d/rpicam.conf	&& \
+	sudo ldconfig
+	sudo cp -r /usr/local/share/hailo-models /usr/share/
