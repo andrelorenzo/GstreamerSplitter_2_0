@@ -1,0 +1,8 @@
+[Unit]
+Description=Grabar una IMX900 en H.264 durante 5 minutos
+After=multi-user.target
+
+[Service]
+Type=exec
+User=arq
+ExecStart=/usr/local/bin/record_imx900.sh

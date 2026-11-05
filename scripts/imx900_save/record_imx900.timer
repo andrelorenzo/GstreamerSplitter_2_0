@@ -1,0 +1,10 @@
+[Unit]
+Description=Iniciar grabacion IMX900 60 segundos tras arrancar
+
+[Timer]
+OnBootSec=60s
+AccuracySec=1s
+Unit=record-imx900.service
+
+[Install]
+WantedBy=timers.target
